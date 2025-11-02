@@ -28,15 +28,18 @@ def home():
 @app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
     if request.method == 'POST':
-        name = request.form['name']
-        image = request.files['image']
+        # Get name and uploaded file
+        name = request.form.get('name')
+        image = request.files.get('file')  # Must match your form's input name
 
-        # Save the uploaded image
+        if not name or not image:
+            return "Missing name or image", 400
+
+        # Save uploaded image
         image_path = os.path.join('static', image.filename)
         image.save(image_path)
 
-        # Analyze emotion using DeepFace
-        from deepface import DeepFace
+        # Analyze emotion
         result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
         dominant_emotion = result[0]['dominant_emotion']
 
@@ -48,10 +51,10 @@ def analyze():
         conn.commit()
         conn.close()
 
-        # Return the result page with data
-        return render_template('index.html', name=name, emotion=dominant_emotion, image_path=image_path)
+        # Return result
+        return f"<h2>{name}, your detected emotion is: {dominant_emotion}</h2>"
 
-    # If GET request, just show the page
+    # GET request → show the form
     return render_template('index.html')
 
 if __name__ == '__main__':
