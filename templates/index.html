@@ -2,71 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Emotion Detection App</title>
+    <title>Emotion Detection</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: #ffe6f0;
+            font-family: Arial, sans-serif;
             text-align: center;
-            padding: 50px;
-            color: #333;
-        }
-        h1 {
-            color: #ff3399;
-        }
-        form {
-            background-color: #fff0f5;
-            padding: 20px;
-            border-radius: 15px;
-            display: inline-block;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding-top: 50px;
         }
         input[type="text"], input[type="file"] {
-            padding: 10px;
-            border-radius: 8px;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 5px;
             border: 1px solid #ff99cc;
-            margin-bottom: 15px;
-            width: 100%;
         }
         input[type="submit"] {
-            background-color: #ff66b2;
+            background-color: #ff66b3;
             color: white;
-            border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
         }
         input[type="submit"]:hover {
-            background-color: #ff3399;
+            background-color: #ff4d94;
         }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #ffd6e8;
-            border-radius: 10px;
-            display: inline-block;
-        }
-        img {
-            max-width: 300px;
-            margin-top: 15px;
-            border-radius: 10px;
+        h1 {
+            color: #ff1a75;
         }
     </style>
 </head>
 <body>
-    <h1>Emotion Detection App 💖</h1>
+    <h1>Emotion Detection App</h1>
     <form action="/analyze" method="POST" enctype="multipart/form-data">
-        <input type="text" name="name" placeholder="Your name" required><br>
-        <input type="file" name="file" accept="image/*" required><br>
+        <input type="text" name="name" placeholder="Enter your name" required><br>
+        <input type="file" name="file" accept="image/*" required><br><br>
         <input type="submit" value="Detect Emotion">
     </form>
-
-    {% if emotion %}
-    <div class="result">
-        <h2>{{ name }}, your detected emotion is: {{ emotion }}</h2>
-        <img src="{{ image_url }}" alt="Uploaded Image">
-    </div>
-    {% endif %}
 </body>
 </html>

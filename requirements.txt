@@ -1,8 +1,4 @@
-flask
-deepface
-opencv-python-headless
-numpy
-pillow
-tensorflow==2.20.0
-gunicorn
-tf-keras
+Flask==2.3.2
+gunicorn==21.2.0
+tensorflow==2.15.0
+deepface==1.0.2
