@@ -25,10 +25,13 @@ def home():
     return render_template('index.html')
 
 # Analyze route (when user clicks "Detect Emotion")
-@app.route('/analyze', methods=['POST'])
+@app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
-    name = request.form['name']
-    image = request.files['file']
+    if request.method == 'POST':
+        # handle uploaded image or webcam capture
+        ...
+    return render_template('index.html')
+
 
     # Save the uploaded image
     image_path = os.path.join('static', image.filename)
