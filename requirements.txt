@@ -3,6 +3,6 @@ deepface
 opencv-python
 numpy
 pillow
-tensorflow-cpu
-gunicorng
+tensorflow==2.20.0
+gunicorn
 tf-keras
