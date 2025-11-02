@@ -28,28 +28,31 @@ def home():
 @app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
     if request.method == 'POST':
-        # handle uploaded image or webcam capture
-        ...
+        name = request.form['name']
+        image = request.files['image']
+
+        # Save the uploaded image
+        image_path = os.path.join('static', image.filename)
+        image.save(image_path)
+
+        # Analyze emotion using DeepFace
+        from deepface import DeepFace
+        result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
+        dominant_emotion = result[0]['dominant_emotion']
+
+        # Save to database
+        conn = sqlite3.connect("emotion_data.db")
+        c = conn.cursor()
+        c.execute("INSERT INTO users (name, image_path, emotion) VALUES (?, ?, ?)",
+                  (name, image_path, dominant_emotion))
+        conn.commit()
+        conn.close()
+
+        # Return the result page with data
+        return render_template('index.html', name=name, emotion=dominant_emotion, image_path=image_path)
+
+    # If GET request, just show the page
     return render_template('index.html')
-
-
-    # Save the uploaded image
-    image_path = os.path.join('static', image.filename)
-    image.save(image_path)
-
-    # Analyze emotion using DeepFace
-    result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
-    dominant_emotion = result[0]['dominant_emotion']
-
-    # Save to database
-    conn = sqlite3.connect("emotion_data.db")
-    c = conn.cursor()
-    c.execute("INSERT INTO users (name, image_path, emotion) VALUES (?, ?, ?)",
-              (name, image_path, dominant_emotion))
-    conn.commit()
-    conn.close()
-
-    return f"<h2>{name}, your detected emotion is: {dominant_emotion}</h2>"
 
 if __name__ == '__main__':
     import os
