@@ -1,24 +1,42 @@
-from flask import Flask, render_template, request
 import os
+from flask import Flask, render_template, request
 import sqlite3
 from deepface import DeepFace
+import gdown  # make sure gdown is in requirements.txt
 
 app = Flask(__name__)
 
-# Ensure static folder exists
-if not os.path.exists('static'):
-    os.makedirs('static')
+# Create weights folder if missing
+weights_dir = os.path.join(os.path.expanduser("~"), ".deepface/weights")
+os.makedirs(weights_dir, exist_ok=True)
 
-# Ensure database exists
-conn = sqlite3.connect("emotion_data.db")
-c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS users
-             (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              name TEXT,
-              image_path TEXT,
-              emotion TEXT)''')
-conn.commit()
-conn.close()
+# List of model files DeepFace needs
+models = {
+    "VGG-Face.h5": "YOUR_GOOGLE_DRIVE_LINK_HERE",
+    "Facenet.h5": "YOUR_GOOGLE_DRIVE_LINK_HERE",
+    # add other weights your app uses
+}
+
+# Download models if not present
+for file_name, url in models.items():
+    path = os.path.join(weights_dir, file_name)
+    if not os.path.exists(path):
+        gdown.download(url, path, quiet=False)
+
+# Ensure SQLite DB exists
+if not os.path.exists("emotion_data.db"):
+    conn = sqlite3.connect("emotion_data.db")
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            image_path TEXT,
+            emotion TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
 
 @app.route('/')
 def index():
@@ -26,24 +44,14 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    name = request.form.get('name')
-    image = request.files.get('file')
-
-    if not name or not image:
-        return "Missing name or image!", 400
-
-    # Save the uploaded image
+    name = request.form['name']
+    image = request.files['file']
     image_path = os.path.join('static', image.filename)
     image.save(image_path)
 
-    # Analyze emotion using DeepFace
-    try:
-        result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
-        dominant_emotion = result[0]['dominant_emotion']
-    except Exception as e:
-        return f"Error analyzing image: {str(e)}", 500
+    result = DeepFace.analyze(img_path=image_path, actions=['emotion'])
+    dominant_emotion = result[0]['dominant_emotion']
 
-    # Save to database
     conn = sqlite3.connect("emotion_data.db")
     c = conn.cursor()
     c.execute("INSERT INTO users (name, image_path, emotion) VALUES (?, ?, ?)",
